@@ -3,7 +3,7 @@ import json
 from sqlalchemy import create_engine, MetaData, Table, select, func, join
 
 # Connect to the database
-engine = create_engine("mysql+pymysql://codetest:swordfish@database/codetest")
+engine = create_engine("mysql+pymysql://codetest:localhost@database/codetest")
 connection = engine.connect()
 
 metadata = MetaData(engine)
@@ -12,12 +12,18 @@ metadata = MetaData(engine)
 places_table = Table('places', metadata, autoload=True, autoload_with=engine)
 people_table = Table('people', metadata, autoload=True, autoload_with=engine)
 
+# Truncate the 'people' table before inserting new data
+connection.execute(people_table.delete())
+
 # Read the CSV data file into the 'people' table
 with open('/data/people.csv') as csv_file:
     reader = csv.reader(csv_file)
     next(reader)  # Skip header
     for row in reader:
         connection.execute(people_table.insert().values(name=row[0]))
+
+# Truncate the 'places' table before inserting new data
+connection.execute(places_table.delete())
 
 # Read the CSV data file into the 'places' table
 with open('/data/places.csv') as csv_file:
@@ -44,6 +50,7 @@ with open('/data/summary_output.json', 'w') as json_file:
 
 # Close the database connection
 connection.close()
+
 
 ''' 
 import csv

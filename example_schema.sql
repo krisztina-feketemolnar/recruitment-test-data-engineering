@@ -1,5 +1,5 @@
 
--- drop table ef if exists commands
+-- drop table if exists commands
 
 drop table if exists codetest.`people`;
 
@@ -24,7 +24,7 @@ create table codetest.`people` (
   foreign key (`place_of_birth`) references `places`(`city`)
 );
 
-
+/*
 select count(*) from codetest.places;
 
 select count(*) from codetest.people;
@@ -34,3 +34,4 @@ select p2.country, count(p.place_of_birth)
 from codetest.people p 
 inner join codetest.places p2 on p.place_of_birth  = p2.city 
 group by p2.country
+*/
