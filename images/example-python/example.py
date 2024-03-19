@@ -56,6 +56,7 @@ connection.close()
 import csv
 import json
 import sqlalchemy
+from sqlalchemy import func, select
 
 # connect to the database
 engine = sqlalchemy.create_engine("mysql://codetest:swordfish@database/codetest")
@@ -67,27 +68,33 @@ metadata = sqlalchemy.schema.MetaData(engine)
 Places = sqlalchemy.schema.Table('places', metadata, autoload=True, autoload_with=engine)
 People = sqlalchemy.schema.Table('people', metadata, autoload=True, autoload_with=engine)
 
-# read the CSV data file into the table
+# Truncate the 'people' table
+connection.execute(People.delete())
 
+# read the CSV data file into the 'people' table
 with open('/data/people.csv') as csv_file:
-  reader = csv.reader(csv_file)
-  next(reader)
-  for row in reader:
-    connection.execute(People.insert().values(name = row[0]))
+    reader = csv.reader(csv_file)
+    next(reader)
+    for row in reader:
+        connection.execute(People.insert().values(name=row[0]))
 
+# Truncate the 'places' table
+connection.execute(Places.delete())
+
+# read the CSV data file into the 'places' table
 with open('/data/places.csv') as csv_file:
-  reader = csv.reader(csv_file)
-  next(reader)
-  for row in reader:
-    connection.execute(Places.insert().values(name = row[0]))
+    reader = csv.reader(csv_file)
+    next(reader)
+    for row in reader:
+        connection.execute(Places.insert().values(name=row[0]))
 
 # Define the join condition
 join_condition = People.columns.place_of_birth == Places.columns.city
 
 # Define the SQL query
 query = select([Places.columns.country, func.count(People.columns.place_of_birth)]) \
-            .select_from(People.join(Places, join_condition)) \
-            .group_by(Places.columns.country)
+    .select_from(People.join(Places, join_condition)) \
+    .group_by(Places.columns.country)
 
 # Execute the query
 result = connection.execute(query).fetchall()
@@ -96,3 +103,6 @@ result = connection.execute(query).fetchall()
 output_data = [{'country': row[0], 'count': int(row[1])} for row in result]
 with open('/data/summary_output.json', 'w') as json_file:
     json.dump(output_data, json_file, separators=(',', ':'))
+
+# Close the database connection
+connection.close()
