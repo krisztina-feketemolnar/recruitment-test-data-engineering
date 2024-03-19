@@ -44,3 +44,48 @@ with open('/data/summary_output.json', 'w') as json_file:
 
 # Close the database connection
 connection.close()
+
+''' 
+import csv
+import json
+import sqlalchemy
+
+# connect to the database
+engine = sqlalchemy.create_engine("mysql://codetest:swordfish@database/codetest")
+connection = engine.connect()
+
+metadata = sqlalchemy.schema.MetaData(engine)
+
+# make an ORM object to refer to the table
+Places = sqlalchemy.schema.Table('places', metadata, autoload=True, autoload_with=engine)
+People = sqlalchemy.schema.Table('people', metadata, autoload=True, autoload_with=engine)
+
+# read the CSV data file into the table
+
+with open('/data/people.csv') as csv_file:
+  reader = csv.reader(csv_file)
+  next(reader)
+  for row in reader:
+    connection.execute(People.insert().values(name = row[0]))
+
+with open('/data/places.csv') as csv_file:
+  reader = csv.reader(csv_file)
+  next(reader)
+  for row in reader:
+    connection.execute(Places.insert().values(name = row[0]))
+
+# Define the join condition
+join_condition = People.columns.place_of_birth == Places.columns.city
+
+# Define the SQL query
+query = select([Places.columns.country, func.count(People.columns.place_of_birth)]) \
+            .select_from(People.join(Places, join_condition)) \
+            .group_by(Places.columns.country)
+
+# Execute the query
+result = connection.execute(query).fetchall()
+
+# Output the query result to a JSON file
+output_data = [{'country': row[0], 'count': int(row[1])} for row in result]
+with open('/data/summary_output.json', 'w') as json_file:
+    json.dump(output_data, json_file, separators=(',', ':'))
