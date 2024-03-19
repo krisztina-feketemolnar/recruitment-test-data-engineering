@@ -15,15 +15,15 @@ people_table = Table('people', metadata, autoload=True, autoload_with=engine)
 # Truncate the 'people' table before inserting new data
 connection.execute(people_table.delete())
 
+# Truncate the 'places' table before inserting new data
+connection.execute(places_table.delete())
+
 # Read the CSV data file into the 'people' table
 with open('/data/people.csv') as csv_file:
     reader = csv.reader(csv_file)
     next(reader)  # Skip header
     for row in reader:
         connection.execute(people_table.insert().values(name=row[0]))
-
-# Truncate the 'places' table before inserting new data
-connection.execute(places_table.delete())
 
 # Read the CSV data file into the 'places' table
 with open('/data/places.csv') as csv_file:
@@ -71,15 +71,15 @@ People = sqlalchemy.schema.Table('people', metadata, autoload=True, autoload_wit
 # Truncate the 'people' table
 connection.execute(People.delete())
 
+# Truncate the 'places' table
+connection.execute(Places.delete())
+
 # read the CSV data file into the 'people' table
 with open('/data/people.csv') as csv_file:
     reader = csv.reader(csv_file)
     next(reader)
     for row in reader:
         connection.execute(People.insert().values(name=row[0]))
-
-# Truncate the 'places' table
-connection.execute(Places.delete())
 
 # read the CSV data file into the 'places' table
 with open('/data/places.csv') as csv_file:
