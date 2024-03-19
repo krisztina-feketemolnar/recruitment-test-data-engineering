@@ -37,8 +37,8 @@ join_condition = people_table.columns.place_of_birth == places_table.columns.cit
 
 # Define the SQL query
 query = select([places_table.columns.country, func.count(people_table.columns.place_of_birth)]) \
-            .select_from(people_table.join(places_table, join_condition)) \
-            .group_by(places_table.columns.country)
+    .select_from(people_table.join(places_table, join_condition)) \
+    .group_by(places_table.columns.country)
 
 # Execute the query
 result = connection.execute(query).fetchall()
@@ -106,3 +106,4 @@ with open('/data/summary_output.json', 'w') as json_file:
 
 # Close the database connection
 connection.close()
+'''
